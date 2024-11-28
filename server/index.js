@@ -240,6 +240,9 @@ app.delete("/delseller/:id", isLoggedIn, isAdmin, async (req, res) => {
   const deleteseller = await sellerModel.findOneAndDelete({
     _id: req.params.id,
   });
+  const delproduct = await productModel.findOneAndDelete({
+    seller : req.params.id
+  })
   res.send("deleteseller");
 });
 
@@ -247,7 +250,19 @@ app.get("/seeListedItems/:id", isLoggedIn, isAdmin, async (req, res) => {
   const products = await productModel.find({ seller: req.params.id });
   res.send(products);
 });
-
+app.get("/postlists", isLoggedIn, isAdmin, async (req, res) => {
+  const posts = await postModel.find();
+  res.json(
+    posts.map(post => ({
+      ...post._doc,
+      image: post.image ? `data:image/png;base64,${post.image.toString("base64")}` : null,
+    }))
+  );
+});
+app.delete("/delpost/:id", isLoggedIn, isAdmin, async(req, res)=>{
+  const post = await postModel.findOneAndDelete({_id: req.params.id})
+  res.send(post)
+})
 // SELLER
 
 app.post(
